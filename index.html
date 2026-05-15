@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#2d5016">
+  <title>21-Day Digital Detox</title>
+
+  <!--
+    ╔══════════════════════════════════════════════════════╗
+    ║  21-DAY DIGITAL DETOX — Web App                      ║
+    ║  i18n-ready: all strings in STRINGS.en               ║
+    ║  To add a language copy the 'en' block with new key  ║
+    ║  e.g. 'cs', 'de', 'fr', 'es', 'sk', 'pl' …         ║
+    ╚══════════════════════════════════════════════════════╝
+  -->
+
+  <style>
+    /* ── CSS VARIABLES ─────────────────────────────────── */
+    :root {
+      --green-dark:    #2d5016;
+      --green-mid:     #3d6e1e;
+      --green-light:   #d4e8c2;
+      --green-lighter: #eaf3db;
+      --amber:         #b07318;
+      --amber-light:   #e09840;
+      --cream:         #f5f0e8;
+      --text-dark:     #1a2e0a;
+      --text-mid:      #4a5e3a;
+      --text-light:    #8a9a7a;
+      --white:         #ffffff;
+      --shadow:        0 2px 10px rgba(45,80,22,.14);
+      --radius:        14px;
+      --tab-h:         62px;
+    }
+
+    /* ── RESET ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    #app { display: flex; flex-direction: column; min-height: 100svh; }
+
+    .page {
+      display: none;
+      padding: 16px 16px calc(var(--tab-h) + 20px);
+      max-width: 500px;
+      margin: 0 auto;
+      width: 100%;
+      animation: fadeIn .2s ease;
+    }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: .4; transform: translateY(4px); } to { opacity:1; transform:none; } }
+
+    /* ── HEADER ─────────────────────────────────────────── */
+    .app-header {
+      background: var(--green-dark);
+      color: #fff;
+      padding: 14px 18px 10px;
+      position: sticky; top: 0; z-index: 200;
+    }
+    .app-header h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: .3px; }
+    .app-header .sub { font-size: .72rem; opacity: .72; margin-top: 2px; }
+
+    /* ── BOTTOM NAV ─────────────────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      height: var(--tab-h);
+      background: #fff;
+      border-top: 1px solid #dce8ce;
+      display: flex;
+      z-index: 200;
+      box-shadow: 0 -2px 14px rgba(0,0,0,.07);
+    }
+    .nav-btn {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; cursor: pointer; color: var(--text-light);
+      font-size: .58rem; font-weight: 600; letter-spacing: .3px; text-transform: uppercase;
+      border: none; background: none; padding: 6px 2px;
+      transition: color .2s;
+    }
+    .nav-btn.active { color: var(--green-dark); }
+    .nav-btn svg { width: 21px; height: 21px; stroke: currentColor; }
+
+    /* ── CARDS ──────────────────────────────────────────── */
+    .card {
+      background: #fff; border-radius: var(--radius);
+      padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow);
+    }
+    .card-green { background: var(--green-lighter); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+    .card-dark  { background: var(--green-dark); color: #fff; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+    .card h2 {
+      font-size: .78rem; font-weight: 800; color: var(--green-dark);
+      text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px;
+    }
+    .card-dark h2 { color: #fff; }
+
+    /* ── FORM ELEMENTS ──────────────────────────────────── */
+    .form-row { margin-bottom: 14px; }
+    .form-row label { display: block; font-size: .78rem; font-weight: 700; color: var(--text-mid); margin-bottom: 5px; }
+    input[type="text"], input[type="number"], input[type="date"], textarea, select {
+      width: 100%; padding: 10px 12px; border: 1.5px solid #d0e0c0;
+      border-radius: 9px; font-size: .9rem; background: #fff;
+      color: var(--text-dark); outline: none; font-family: inherit;
+      transition: border-color .2s;
+    }
+    input:focus, textarea:focus { border-color: var(--green-mid); }
+    textarea { resize: none; line-height: 1.5; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 0; border-bottom: 1px solid #eaf0e2;
+    }
+    .toggle-row:last-of-type { border-bottom: none; }
+    .toggle-row .tl { font-size: .88rem; }
+    .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: #ccc; border-radius: 26px; transition: .25s;
+    }
+    .slider::before {
+      content: ''; position: absolute;
+      height: 20px; width: 20px; left: 3px; bottom: 3px;
+      background: #fff; border-radius: 50%; transition: .25s;
+    }
+    .switch input:checked + .slider { background: var(--green-mid); }
+    .switch input:checked + .slider::before { transform: translateX(20px); }
+
+    /* Mood picker */
+    .mood-row { display: flex; gap: 6px; }
+    .mood-btn {
+      flex: 1; padding: 8px 2px; border: 2px solid #d0e0c0; border-radius: 10px;
+      background: #fff; cursor: pointer; font-size: 1.25rem; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      transition: all .18s;
+    }
+    .mood-btn span { font-size: .58rem; color: var(--text-light); }
+    .mood-btn.sel { border-color: var(--green-mid); background: var(--green-lighter); }
+
+    /* Number stepper */
+    .stepper { display: flex; align-items: center; gap: 8px; }
+    .stepper button {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid var(--green-mid); background: #fff; color: var(--green-mid);
+      font-size: 1.3rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      line-height: 1;
+    }
+    .stepper input { text-align: center; width: 64px; border-radius: 8px; }
+
+    /* ── BUTTONS ─────────────────────────────────────────── */
+    .btn {
+      display: block; width: 100%; padding: 13px 16px;
+      background: var(--green-dark); color: #fff; border: none;
+      border-radius: 10px; font-size: .92rem; font-weight: 700;
+      cursor: pointer; text-align: center; letter-spacing: .2px;
+      transition: opacity .18s; font-family: inherit;
+    }
+    .btn:active { opacity: .82; }
+    .btn.outline { background: transparent; color: var(--green-dark); border: 2px solid var(--green-dark); }
+    .btn.amber   { background: var(--amber); }
+    .btn.sm      { padding: 8px 14px; font-size: .8rem; width: auto; display: inline-block; border-radius: 8px; }
+
+    /* ── PROGRESS CIRCLES ────────────────────────────────── */
+    .circles-grid {
+      display: grid; grid-template-columns: repeat(7,1fr); gap: 7px;
+    }
+    .day-circle {
+      aspect-ratio: 1; border-radius: 50%;
+      border: 2px solid var(--green-mid);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: .65rem; font-weight: 800; color: var(--green-mid);
+      cursor: pointer; transition: all .25s; position: relative;
+    }
+    .day-circle .dn  { font-size: .72rem; line-height: 1; }
+    .day-circle .wl  { font-size: .44rem; line-height: 1; }
+    .day-circle.done { background: var(--green-mid); color: #fff; }
+    .day-circle.today { border-color: var(--amber); color: var(--amber); }
+    .day-circle.today.done { background: var(--amber); color: #fff; border-color: var(--amber); }
+    .day-circle.future { opacity: .35; pointer-events: none; }
+
+    /* ── SCREEN TIME CHART ───────────────────────────────── */
+    .chart-wrap { position: relative; height: 90px; margin: 8px 0 4px; }
+    .chart-axes {
+      position: absolute; left: 0; top: 0; bottom: 18px; width: 22px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      align-items: flex-end; padding-right: 4px;
+    }
+    .chart-axes span { font-size: .52rem; color: var(--text-light); }
+    .chart-inner {
+      position: absolute; left: 26px; right: 0; top: 0; bottom: 18px;
+      display: flex; align-items: flex-end; gap: 2px;
+    }
+    .bar-col {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end; height: 100%;
+    }
+    .bar {
+      width: 100%; border-radius: 3px 3px 0 0; min-height: 2px;
+      background: var(--green-light); border: 1px solid #b8d4a0;
+      transition: height .4s ease;
+    }
+    .bar.filled { background: var(--green-mid); border-color: var(--green-dark); }
+    .bar-label { font-size: .48rem; color: var(--text-light); margin-top: 2px; }
+
+    /* ── CHALLENGE CARD ──────────────────────────────────── */
+    .challenge-card {
+      background: var(--green-dark); color: #fff;
+      border-radius: var(--radius); padding: 20px;
+      margin-bottom: 12px; text-align: center;
+    }
+    .day-badge {
+      display: inline-block; background: var(--amber); color: #fff;
+      font-size: .68rem; font-weight: 800; padding: 3px 12px;
+      border-radius: 20px; margin-bottom: 10px; letter-spacing: .5px; text-transform: uppercase;
+    }
+    .challenge-text { font-size: 1.05rem; font-weight: 700; line-height: 1.4; margin-bottom: 14px; }
+
+    /* ── HABIT LIST ──────────────────────────────────────── */
+    .habit-cat-title {
+      font-size: .7rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .8px; color: #fff; background: var(--green-dark);
+      padding: 5px 12px; border-radius: 6px; margin: 10px 0 6px;
+    }
+    .habit-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 2px; border-bottom: 1px solid #eaf0e2; cursor: pointer;
+    }
+    .habit-row:last-child { border-bottom: none; }
+    .hcheck {
+      width: 22px; height: 22px; border: 2px solid var(--green-mid);
+      border-radius: 5px; flex-shrink: 0; display: flex;
+      align-items: center; justify-content: center; background: #fff;
+      transition: all .18s;
+    }
+    .habit-row.checked .hcheck { background: var(--green-mid); }
+    .habit-row.checked .hcheck::after { content: '✓'; color: #fff; font-size: .8rem; font-weight: 900; }
+    .hlabel { font-size: .88rem; flex: 1; }
+    .habit-row.checked .hlabel { text-decoration: line-through; color: var(--text-light); }
+
+    /* ── WEEKLY TABS ─────────────────────────────────────── */
+    .tab-row { display: flex; gap: 6px; margin-bottom: 14px; }
+    .tab-btn {
+      flex: 1; padding: 8px 4px; border: 2px solid var(--green-mid);
+      border-radius: 9px; background: #fff; color: var(--green-mid);
+      font-size: .78rem; font-weight: 800; cursor: pointer; font-family: inherit;
+      transition: all .18s;
+    }
+    .tab-btn.active { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+
+    /* ── STATS STRIP ─────────────────────────────────────── */
+    .stats-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .stat-card { flex: 1; background: var(--green-lighter); border-radius: 10px; padding: 12px 6px; text-align: center; }
+    .stat-val   { font-size: 1.45rem; font-weight: 900; color: var(--green-dark); }
+    .stat-lbl   { font-size: .6rem; color: var(--text-light); text-transform: uppercase; letter-spacing: .3px; margin-top: 1px; }
+
+    /* ── QUOTE BOX ───────────────────────────────────────── */
+    .quote-box {
+      background: var(--amber); color: #fff;
+      border-radius: var(--radius); padding: 14px 16px;
+      font-style: italic; font-size: .82rem; line-height: 1.55;
+      margin-bottom: 12px; text-align: center;
+    }
+
+    /* ── CERTIFICATE ─────────────────────────────────────── */
+    .cert-box {
+      border: 3px solid var(--green-dark); border-radius: 12px;
+      padding: 24px 20px; text-align: center; background: #fff; margin: 12px 0;
+    }
+    .cert-box h3 { font-size: .72rem; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-light); }
+    .cert-name  { font-size: 1.4rem; font-weight: 900; color: var(--green-dark); margin: 10px 0 6px; border-bottom: 2px solid var(--green-dark); padding-bottom: 6px; }
+    .cert-title { font-size: .95rem; font-weight: 900; color: var(--green-dark); margin: 6px 0; }
+    .cert-foot  { display: flex; justify-content: space-between; margin-top: 20px; font-size: .72rem; color: var(--text-light); border-top: 1px solid #d0e0c0; padding-top: 12px; }
+
+    /* ── ONBOARDING ──────────────────────────────────────── */
+    #onboarding {
+      min-height: 100svh; background: var(--green-dark);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px 24px; text-align: center;
+    }
+    #onboarding .logo { font-size: 4rem; margin-bottom: 12px; }
+    #onboarding h1 { color: #fff; font-size: 1.55rem; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
+    #onboarding p  { color: rgba(255,255,255,.75); font-size: .88rem; margin-bottom: 28px; line-height: 1.55; }
+    #onboarding .card { text-align: left; width: 100%; max-width: 420px; }
+
+    /* ── MISC UTILITIES ──────────────────────────────────── */
+    .sec-title  { font-size: .95rem; font-weight: 900; color: var(--green-dark); margin-bottom: 12px; }
+    .note       { font-size: .78rem; color: var(--text-mid); line-height: 1.5; }
+    .tc         { text-align: center; }
+    .mt8        { margin-top: 8px; }
+    .mt12       { margin-top: 12px; }
+    .mb12       { margin-bottom: 12px; }
+    .divider    { height: 1px; background: #e4eeda; margin: 12px 0; }
+    .amber-tag  { display: inline-block; background: var(--amber); color: #fff; font-size: .62rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: .3px; }
+
+    /* ── DAY NAV ROW ─────────────────────────────────────── */
+    .day-nav { display: flex; gap: 8px; margin-bottom: 10px; }
+    .day-nav .btn { font-size: .78rem; padding: 9px 10px; }
+
+    /* ── PRINT STYLES ────────────────────────────────────── */
+    @media print {
+      body * { visibility: hidden; }
+      #print-area, #print-area * { visibility: visible; }
+      #print-area { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  ONBOARDING                                           -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="onboarding">
+  <div class="logo">📵</div>
+  <h1>21-Day Digital Detox</h1>
+  <p>Take back control of your screen time<br>and rediscover life beyond the scroll.</p>
+  <div class="card">
+    <div class="form-row">
+      <label>Your name</label>
+      <input type="text" id="ob-name" placeholder="Enter your name…" autocomplete="name">
+    </div>
+    <div class="form-row">
+      <label>Challenge start date</label>
+      <input type="date" id="ob-date">
+    </div>
+    <div class="form-row">
+      <label>My intention for these 21 days</label>
+      <textarea id="ob-intention" rows="3" placeholder="e.g. Spend more quality time with family…"></textarea>
+    </div>
+    <button class="btn" onclick="App.start()">Start My Detox Journey →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!--  MAIN APP                                             -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="app" style="display:none; flex-direction:column; min-height:100svh;">
+
+  <!-- Header -->
+  <div class="app-header">
+    <h1>📵 21-Day Digital Detox</h1>
+    <div class="sub" id="hdr-sub">Day 1 of 21</div>
+  </div>
+
+  <!-- ── HOME ───────────────────────────────────────────── -->
+  <div class="page active" id="page-home">
+    <div id="home-banner" class="quote-box" style="font-style:normal; font-weight:800; font-size:.95rem;"></div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val" id="s-streak">0</div><div class="stat-lbl">Streak</div></div>
+      <div class="stat-card"><div class="stat-val" id="s-done">0</div><div class="stat-lbl">Challenges</div></div>
+      <div class="stat-card"><div class="stat-val" id="s-mood">—</div><div class="stat-lbl">Avg Mood</div></div>
+    </div>
+    <div class="card" id="home-challenge"></div>
+    <div class="quote-box" id="home-quote"></div>
+    <div class="card" id="home-howto">
+      <h2>How It Works</h2>
+      <div class="note" style="line-height:1.7;">
+        <div>📋 <strong>Track daily</strong> — log screen time, mood &amp; habits</div>
+        <div>🎯 <strong>Do the challenges</strong> — one screen-free task per day</div>
+        <div>💭 <strong>Reflect weekly</strong> — notice patterns, celebrate wins</div>
+        <div>🔄 <strong>Replace, don't remove</strong> — swap phone time for real life</div>
+        <div>🎉 <strong>Celebrate Day 21</strong> — you earned it!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TODAY ──────────────────────────────────────────── -->
+  <div class="page" id="page-today">
+    <div class="sec-title" id="today-title">Today's Check-In</div>
+
+    <div class="challenge-card">
+      <div class="day-badge" id="ch-badge">Day 1</div>
+      <div class="challenge-text" id="ch-text"></div>
+      <button class="btn amber sm" id="ch-btn" onclick="App.toggleChallenge()">Mark as Done ✓</button>
+    </div>
+
+    <div class="card">
+      <h2>Daily Log</h2>
+
+      <div class="form-row">
+        <label>Screen Time (hours)</label>
+        <div class="stepper">
+          <button onclick="App.step('fld-screen',-.5)">−</button>
+          <input type="number" id="fld-screen" min="0" max="24" step=".5" value="0" oninput="App.saveDay()">
+          <button onclick="App.step('fld-screen',.5)">+</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>Sleep (hours)</label>
+        <div class="stepper">
+          <button onclick="App.step('fld-sleep',-.5)">−</button>
+          <input type="number" id="fld-sleep" min="0" max="24" step=".5" value="7" oninput="App.saveDay()">
+          <button onclick="App.step('fld-sleep',.5)">+</button>
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <span class="tl">Went outside today?</span>
+        <label class="switch"><input type="checkbox" id="fld-outside" onchange="App.saveDay()"><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span class="tl">Did a hobby or reading?</span>
+        <label class="switch"><input type="checkbox" id="fld-hobby" onchange="App.saveDay()"><span class="slider"></span></label>
+      </div>
+
+      <div class="form-row mt12">
+        <label>Mood today</label>
+        <div class="mood-row" id="mood-row">
+          <button class="mood-btn" data-m="1" onclick="App.setMood(1)">😔<span>Terrible</span></button>
+          <button class="mood-btn" data-m="2" onclick="App.setMood(2)">😕<span>Bad</span></button>
+          <button class="mood-btn" data-m="3" onclick="App.setMood(3)">😐<span>Okay</span></button>
+          <button class="mood-btn" data-m="4" onclick="App.setMood(4)">😊<span>Good</span></button>
+          <button class="mood-btn" data-m="5" onclick="App.setMood(5)">😄<span>Amazing</span></button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>One win today</label>
+        <textarea id="fld-win" rows="2" placeholder="What's one thing you're proud of today…" oninput="App.saveDay()"></textarea>
+      </div>
+    </div>
+
+    <div class="day-nav">
+      <button class="btn outline" onclick="App.navDay(-1)">← Prev Day</button>
+      <button class="btn outline" onclick="App.navDay(1)">Next Day →</button>
+    </div>
+    <div id="view-info" class="note tc"></div>
+  </div>
+
+  <!-- ── PROGRESS ───────────────────────────────────────── -->
+  <div class="page" id="page-progress">
+    <div class="sec-title">My Progress</div>
+
+    <div class="card">
+      <h2>21-Day Journey</h2>
+      <div class="circles-grid" id="circles"></div>
+      <div class="note tc mt8">Tap a day to view &amp; edit it</div>
+    </div>
+
+    <div class="card">
+      <h2>Screen Time Journey (hrs / day)</h2>
+      <div class="chart-wrap">
+        <div class="chart-axes">
+          <span>8</span><span>6</span><span>4</span><span>2</span><span>0</span>
+        </div>
+        <div class="chart-inner" id="chart"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:0 26px;">
+        <span class="note">Day 1</span><span class="note">Day 21</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>My Intention</h2>
+      <p class="note" id="prog-intention" style="font-style:italic;"></p>
+    </div>
+  </div>
+
+  <!-- ── HABITS ─────────────────────────────────────────── -->
+  <div class="page" id="page-habits">
+    <div class="sec-title">Habit Replacement</div>
+    <p class="note mb12">Instead of reaching for your phone, try one of these. Tap to mark what you've tried.</p>
+    <div id="habit-list"></div>
+    <div class="card mt12">
+      <h2>My Own Replacements</h2>
+      <div id="custom-list"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="text" id="custom-input" placeholder="Add your own habit…" style="flex:1;">
+        <button class="btn sm" onclick="App.addCustom()">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REFLECT ────────────────────────────────────────── -->
+  <div class="page" id="page-reflect">
+    <div class="sec-title">Weekly Reflections</div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="App.setWeek(1)">Week 1</button>
+      <button class="tab-btn"        onclick="App.setWeek(2)">Week 2</button>
+      <button class="tab-btn"        onclick="App.setWeek(3)">Week 3</button>
+    </div>
+    <div id="reflect-body"></div>
+  </div>
+
+  <!-- ── FINISH ─────────────────────────────────────────── -->
+  <div class="page" id="page-finish">
+    <div class="sec-title">🎉 You Did It!</div>
+    <div class="card-dark tc mb12">
+      <div style="font-size:2rem;margin-bottom:6px;">🏆</div>
+      <div class="note" style="opacity:.85;">Day 21 — Final Reflection</div>
+    </div>
+    <div class="card"><div id="final-form"></div></div>
+
+    <div class="cert-box" id="cert-box">
+      <h3>— Certificate of Completion —</h3>
+      <p class="note mt8">This is to certify that</p>
+      <div class="cert-name" id="cert-name"></div>
+      <p class="note">has successfully completed the</p>
+      <div class="cert-title">21-DAY DIGITAL DETOX CHALLENGE</div>
+      <p class="note" style="font-size:.75rem;margin-top:4px;color:var(--text-light);">and has taken a meaningful step toward a healthier relationship with technology.</p>
+      <div class="cert-foot">
+        <span id="cert-date"></span>
+        <span>✓ Completed</span>
+      </div>
+    </div>
+
+    <button class="btn outline mt8" onclick="App.printCert()">🖨 Print Certificate</button>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-home"     onclick="App.go('home')">
+      <svg fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </button>
+    <button class="nav-btn" id="nav-today"    onclick="App.go('today')">
+      <svg fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Today
+    </button>
+    <button class="nav-btn" id="nav-progress" onclick="App.go('progress')">
+      <svg fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Progress
+    </button>
+    <button class="nav-btn" id="nav-habits"   onclick="App.go('habits')">
+      <svg fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Habits
+    </button>
+    <button class="nav-btn" id="nav-reflect"  onclick="App.go('reflect')">
+      <svg fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Reflect
+    </button>
+    <button class="nav-btn" id="nav-finish"   onclick="App.go('finish')">
+      <svg fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+      Finish
+    </button>
+  </nav>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   i18n — ALL user-visible strings live here.
+   To add a language: copy the 'en' block, give it a new key
+   (e.g. 'cs', 'de', 'fr', 'es', 'sk', 'pl' …), translate.
+   Then call App.setLang('cs') to switch.
+   ═══════════════════════════════════════════════════════════ */
+const STRINGS = {
+  en: {
+    appName: '21-Day Digital Detox',
+    tagline: 'Take back control of your screen time and rediscover life beyond the scroll.',
+    yourName: 'Your name', namePh: 'Enter your name…',
+    startDate: 'Challenge start date',
+    intentionLabel: 'My intention for these 21 days',
+    intentionPh: 'e.g. Spend more quality time with family…',
+    startBtn: 'Start My Detox Journey →',
+    dayOf21: (d) => `Day ${d} of 21`,
+    streak: 'Streak', challenges: 'Challenges', avgMood: 'Avg Mood',
+    todayChallenge: "Today's Challenge",
+    logToday: 'Log Today →',
+    todayCheckin: "Today's Check-In",
+    dayLog: (d) => `Day ${d} Log`,
+    screenTimeHrs: 'Screen Time (hours)',
+    sleepHrs: 'Sleep (hours)',
+    outside: 'Went outside today?',
+    hobby: 'Did a hobby or reading?',
+    moodToday: 'Mood today',
+    moodLabels: ['', 'Terrible', 'Bad', 'Okay', 'Good', 'Amazing'],
+    moodEmoji:  ['', '😔',      '😕',  '😐',   '😊',   '😄'],
+    oneWin: 'One win today',
+    winPh: "What's one thing you're proud of today…",
+    prevDay: '← Prev Day', nextDay: 'Next Day →',
+    viewingDay: (d, past) => `Viewing Day ${d} ${past ? '(past)' : '(future)'}`,
+    myProgress: 'My Progress',
+    journey21: '21-Day Journey',
+    tapDay: 'Tap a day to view & edit it',
+    screenJourney: 'Screen Time Journey (hrs / day)',
+    myIntention: 'My Intention',
+    noIntention: 'No intention set yet.',
+    habitReplace: 'Habit Replacement',
+    habitNote: "Instead of reaching for your phone, try one of these. Tap to mark what you've tried.",
+    myOwnRepl: 'My Own Replacements',
+    addHabitPh: 'Add your own habit…',
+    add: 'Add',
+    weeklyReflect: 'Weekly Reflections',
+    week: (n) => `Week ${n}`,
+    reflectQs: [
+      "What is ONE thing you're proud of this week?",
+      "What was your average daily screen time? Lower than last week?",
+      "What was the hardest moment? What triggered you?",
+      "What did you discover when you weren't on your phone?",
+      "Which challenge did you enjoy most? Why?",
+      "What will you do differently next week?"
+    ],
+    weekStats: (n) => `WEEK ${n} STATS`,
+    totalScreen: 'Total screen time',
+    challengesDoneOf7: 'Challenges done',
+    avgMoodOf5: 'Average mood',
+    writeThoughts: 'Write your thoughts…',
+    youDidIt: '🎉 You Did It!',
+    finalReflect: 'Day 21 — Final Reflection',
+    finalQs: [
+      { key: 'compared', q: 'How do you feel compared to Day 1?' },
+      { key: 'biggest',  q: 'What is the BIGGEST change you noticed in yourself?' },
+      { key: 'keep',     q: 'What habit will you keep going after Day 21?' },
+      { key: 'friend',   q: 'What would you tell a friend starting this challenge?' }
+    ],
+    certHeader: '— Certificate of Completion —',
+    certBody: 'This is to certify that',
+    certCompleted: 'has successfully completed the',
+    certChallenge: '21-DAY DIGITAL DETOX CHALLENGE',
+    certSub: 'and has taken a meaningful step toward a healthier relationship with technology.',
+    printCert: '🖨 Print Certificate',
+    markDone: 'Mark as Done ✓',
+    markedDone: '✓ Challenge Done!',
+    quotes: {
+      default: '"Almost everything will work again if you unplug it for a few minutes, including you." — Anne Lamott',
+      1: '"The first step toward change is awareness." — Nathaniel Branden',
+      2: '"We are what we repeatedly do." — Aristotle',
+      3: '"You are enough. You have enough. You do enough." — Brené Brown'
+    },
+    habitCats: {
+      'Mental & Creative':  'Mental & Creative',
+      'Physical & Active':  'Physical & Active',
+      'Social & Connecting':'Social & Connecting',
+      'Calm & Restorative': 'Calm & Restorative'
+    }
+  }
+  /* ── Future languages — uncomment & translate ──────────
+  ,cs: { appName: '21denní digitální detox', ... }
+  ,de: { appName: '21-Tage Digitaldetox', ... }
+  ,fr: { appName: 'Détox numérique 21 jours', ... }
+  ,sk: { appName: '21-dňový digitálny detox', ... }
+  */
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STATIC DATA
+   ═══════════════════════════════════════════════════════════ */
+const CHALLENGES = [
+  "No phone for the first hour after waking up",
+  "Delete social media apps for 24 hours",
+  "Have one meal completely phone-free",
+  "30-min walk — no headphones, no phone",
+  "Text nobody first today. Wait for others.",
+  "Read a physical book for 30 minutes",
+  "No phone after 9 PM",
+  "Turn off ALL notifications for the day",
+  "Write 3 pages by hand in a notebook",
+  "Call someone instead of texting them",
+  "1 hour doing a hobby — zero screens",
+  "Cook a meal from memory, no YouTube",
+  "Leave your phone in another room for 3 hours",
+  "Have a full conversation without checking your phone",
+  "No internet before noon",
+  "Sit in a café for 20 minutes without your phone",
+  "Morning in silence — no music, no podcasts",
+  "Draw, paint, or doodle for 20 minutes",
+  "Plan your week using only pen and paper",
+  "Spend the entire evening 100% offline",
+  "Write a letter to your future self"
+];
+
+const HABITS_DATA = {
+  'Mental & Creative':  ['Read a book or magazine','Write in a journal','Draw or doodle','Learn a new word','Do a puzzle','Plan on paper'],
+  'Physical & Active':  ['Go for a walk (no headphones)','Stretch 10 minutes','Do 20 push-ups','Tidy one room','Cook something new','Garden or be outside'],
+  'Social & Connecting':['Call a friend','Write a postcard','Meet someone for coffee','Play a board game','Screen-free dinner','Volunteer locally'],
+  'Calm & Restorative': ['Meditate 5–10 minutes','Sit outside and breathe','Listen to music mindfully','Take a long bath','Breathing exercise','Watch the sky 5 min']
+};
+
+/* ═══════════════════════════════════════════════════════════
+   STATE — persisted to localStorage
+   ═══════════════════════════════════════════════════════════ */
+const STORE_KEY = 'detox_v2';
+
+let S = {
+  lang:       'en',
+  name:       '',
+  startDate:  null,
+  intention:  '',
+  days:       {},     // "1" … "21": { screenTime, sleep, outside, hobby, mood, challengeDone, win }
+  reflections:{},     // "1" … "3": { q0 … q5 }
+  habits:     [],     // array of checked habit strings
+  customHabits:[],    // [{ label, checked }]
+  finalReflection: {} // { compared, biggest, keep, friend }
+};
+
+function load() {
+  try { const r = localStorage.getItem(STORE_KEY); if (r) S = { ...S, ...JSON.parse(r) }; } catch(e){}
+}
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch(e){}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   i18n HELPER
+   ═══════════════════════════════════════════════════════════ */
+function t(key, ...args) {
+  let v = (STRINGS[S.lang] || STRINGS.en)[key];
+  if (v === undefined) return key;
+  return typeof v === 'function' ? v(...args) : v;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════════════════════ */
+function currentDay() {
+  if (!S.startDate) return 1;
+  const s = new Date(S.startDate); s.setHours(0,0,0,0);
+  const n = new Date();            n.setHours(0,0,0,0);
+  return Math.min(Math.max(1, Math.floor((n - s) / 86400000) + 1), 21);
+}
+
+function dayData(d) {
+  return S.days[d] || { screenTime: 0, sleep: 7, outside: false, hobby: false, mood: 0, challengeDone: false, win: '' };
+}
+
+function weekStats(w) {
+  let totScreen = 0, done = 0, mSum = 0, mN = 0;
+  for (let d = (w-1)*7+1; d <= w*7; d++) {
+    const x = S.days[d]; if (!x) continue;
+    totScreen += parseFloat(x.screenTime || 0);
+    if (x.challengeDone) done++;
+    if (x.mood > 0) { mSum += x.mood; mN++; }
+  }
+  return { totScreen: totScreen.toFixed(1), done, avgMood: mN ? (mSum/mN).toFixed(1) : '—' };
+}
+
+function overallStats() {
+  const cd = currentDay();
+  let challenges = 0, mSum = 0, mN = 0, streak = 0;
+  // streak: consecutive logged days ending today
+  for (let d = cd; d >= 1; d--) {
+    const x = S.days[d];
+    const logged = x && (x.challengeDone || x.mood > 0 || x.win || parseFloat(x.screenTime) > 0);
+    if (logged) streak++;
+    else if (d < cd) break;
+  }
+  for (let d = 1; d <= 21; d++) {
+    const x = S.days[d]; if (!x) continue;
+    if (x.challengeDone) challenges++;
+    if (x.mood > 0) { mSum += x.mood; mN++; }
+  }
+  return { streak, challenges, avgMood: mN ? (mSum/mN).toFixed(1) : '—' };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   APP CONTROLLER
+   ═══════════════════════════════════════════════════════════ */
+let viewDay = 1;
+let reflectWeek = 1;
+
+const App = {
+
+  /* ── Bootstrap ─────────────────────────────────── */
+  init() {
+    load();
+    document.getElementById('ob-date').value = new Date().toISOString().slice(0,10);
+    if (S.name && S.startDate) {
+      this._hideOnboarding();
+      viewDay = currentDay();
+      this._render();
+    }
+  },
+
+  start() {
+    const name       = document.getElementById('ob-name').value.trim();
+    const startDate  = document.getElementById('ob-date').value;
+    const intention  = document.getElementById('ob-intention').value.trim();
+    if (!name)      { document.getElementById('ob-name').focus(); return; }
+    if (!startDate) { document.getElementById('ob-date').focus(); return; }
+    S.name = name; S.startDate = startDate; S.intention = intention;
+    save();
+    this._hideOnboarding();
+    viewDay = currentDay();
+    this._render();
+  },
+
+  _hideOnboarding() {
+    document.getElementById('onboarding').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+  },
+
+  setLang(code) {
+    if (STRINGS[code]) { S.lang = code; save(); this._render(); }
+  },
+
+  /* ── Navigation ─────────────────────────────────── */
+  go(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'today')    this._renderToday();
+    if (name === 'progress') this._renderProgress();
+    if (name === 'habits')   this._renderHabits();
+    if (name === 'reflect')  this._renderReflect();
+    if (name === 'finish')   this._renderFinish();
+  },
+
+  /* ── Full render ────────────────────────────────── */
+  _render() {
+    this._renderHeader();
+    this._renderHome();
+    this._renderToday();
+    this._renderProgress();
+    this._renderHabits();
+    this._renderReflect();
+    this._renderFinish();
+  },
+
+  /* ── Header ─────────────────────────────────────── */
+  _renderHeader() {
+    const cd = currentDay();
+    document.getElementById('hdr-sub').textContent =
+      `Day ${cd} of 21 · ${S.name}`;
+  },
+
+  /* ── Home ───────────────────────────────────────── */
+  _renderHome() {
+    const cd = currentDay();
+    const pct = Math.round(cd / 21 * 100);
+    document.getElementById('home-banner').innerHTML =
+      `📵 Day ${cd} of 21 &nbsp;·&nbsp; ${pct}% Complete`;
+
+    const st = overallStats();
+    document.getElementById('s-streak').textContent = st.streak;
+    document.getElementById('s-done').textContent   = st.challenges;
+    document.getElementById('s-mood').textContent   = st.avgMood;
+
+    document.getElementById('home-challenge').innerHTML = `
+      <h2>Today's Challenge</h2>
+      <p class="note mt8" style="line-height:1.55;">${CHALLENGES[cd-1]}</p>
+      <button class="btn sm mt12" onclick="App.go('today')">Log Today →</button>
+    `;
+
+    const wk = Math.ceil(cd / 7);
+    const qKey = wk <= 3 ? wk : 'default';
+    document.getElementById('home-quote').textContent = (STRINGS[S.lang]||STRINGS.en).quotes[qKey] || (STRINGS[S.lang]||STRINGS.en).quotes.default;
+
+    document.getElementById('home-howto').style.display = cd <= 3 ? 'block' : 'none';
+  },
+
+  /* ── Today ──────────────────────────────────────── */
+  _renderToday() {
+    const cd   = currentDay();
+    const d    = viewDay;
+    const data = dayData(d);
+    const isToday = d === cd;
+
+    document.getElementById('ch-badge').textContent = `Day ${d}`;
+    document.getElementById('ch-text').textContent  = CHALLENGES[d-1];
+
+    const btn = document.getElementById('ch-btn');
+    if (data.challengeDone) {
+      btn.textContent = '✓ Challenge Done!';
+      btn.style.background = '#4a8c2a';
+    } else {
+      btn.textContent = 'Mark as Done ✓';
+      btn.style.background = '';
+    }
+
+    document.getElementById('fld-screen').value  = data.screenTime ?? 0;
+    document.getElementById('fld-sleep').value   = data.sleep ?? 7;
+    document.getElementById('fld-outside').checked = !!data.outside;
+    document.getElementById('fld-hobby').checked   = !!data.hobby;
+    document.getElementById('fld-win').value      = data.win || '';
+
+    document.querySelectorAll('.mood-btn').forEach(b =>
+      b.classList.toggle('sel', +b.dataset.m === data.mood)
+    );
+
+    document.getElementById('today-title').textContent =
+      isToday ? "Today's Check-In" : `Day ${d} Log`;
+
+    document.getElementById('view-info').textContent =
+      isToday ? '' : `Viewing Day ${d} ${d < cd ? '(past)' : '(future)'}`;
+  },
+
+  navDay(delta) {
+    viewDay = Math.min(Math.max(1, viewDay + delta), 21);
+    this._renderToday();
+  },
+
+  toggleChallenge() {
+    if (!S.days[viewDay]) S.days[viewDay] = dayData(viewDay);
+    S.days[viewDay].challengeDone = !S.days[viewDay].challengeDone;
+    save(); this._renderToday(); this._renderHome(); this._renderProgress();
+  },
+
+  setMood(val) {
+    if (!S.days[viewDay]) S.days[viewDay] = dayData(viewDay);
+    S.days[viewDay].mood = val;
+    document.querySelectorAll('.mood-btn').forEach(b =>
+      b.classList.toggle('sel', +b.dataset.m === val)
+    );
+    save(); this._renderHome();
+  },
+
+  step(id, delta) {
+    const el = document.getElementById(id);
+    el.value = Math.min(Math.max(0, Math.round((parseFloat(el.value||0) + delta) * 2) / 2), 24);
+    this.saveDay();
+  },
+
+  saveDay() {
+    if (!S.days[viewDay]) S.days[viewDay] = {};
+    S.days[viewDay].screenTime    = parseFloat(document.getElementById('fld-screen').value) || 0;
+    S.days[viewDay].sleep         = parseFloat(document.getElementById('fld-sleep').value)  || 0;
+    S.days[viewDay].outside       = document.getElementById('fld-outside').checked;
+    S.days[viewDay].hobby         = document.getElementById('fld-hobby').checked;
+    S.days[viewDay].win           = document.getElementById('fld-win').value;
+    if (!S.days[viewDay].mood)          S.days[viewDay].mood = 0;
+    if (!S.days[viewDay].challengeDone) S.days[viewDay].challengeDone = false;
+    save(); this._renderHome(); this._renderProgress();
+  },
+
+  /* ── Progress ───────────────────────────────────── */
+  _renderProgress() {
+    const cd = currentDay();
+
+    // Circles
+    const container = document.getElementById('circles');
+    container.innerHTML = '';
+    for (let d = 1; d <= 21; d++) {
+      const x = S.days[d];
+      const done   = x && (x.challengeDone || x.mood > 0 || x.win || parseFloat(x.screenTime) > 0);
+      const isToday= d === cd;
+      const future = d > cd;
+      const wEnd   = d % 7 === 0;
+
+      const el = document.createElement('div');
+      el.className = 'day-circle' +
+        (done ? ' done' : '') +
+        (isToday ? ' today' : '') +
+        (future ? ' future' : '');
+      el.innerHTML = `<div class="dn">${d}</div>${wEnd ? `<div class="wl">W${Math.ceil(d/7)}</div>` : ''}`;
+      el.title = `Day ${d}`;
+      el.onclick = () => { viewDay = d; App.go('today'); };
+      container.appendChild(el);
+    }
+
+    // Chart
+    const chart = document.getElementById('chart');
+    chart.innerHTML = '';
+    const MAX_H = 8;
+    for (let d = 1; d <= 21; d++) {
+      const x   = S.days[d];
+      const hrs = parseFloat(x?.screenTime || 0);
+      const pct = Math.min(hrs / MAX_H, 1) * 100;
+      const future = d > cd;
+      const col = document.createElement('div');
+      col.className = 'bar-col';
+      col.innerHTML = `
+        <div class="bar${hrs > 0 ? ' filled' : ''}"
+             style="height:${Math.max(pct,2)}%;opacity:${future?.3:1};"
+             title="Day ${d}: ${hrs}h"></div>
+        <div class="bar-label">${d}</div>
+      `;
+      chart.appendChild(col);
+    }
+
+    document.getElementById('prog-intention').textContent = S.intention || 'No intention set yet.';
+  },
+
+  /* ── Habits ─────────────────────────────────────── */
+  _renderHabits() {
+    const wrap = document.getElementById('habit-list');
+    wrap.innerHTML = '';
+    Object.entries(HABITS_DATA).forEach(([cat, items]) => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `<div class="habit-cat-title">${cat}</div>`;
+      items.forEach(item => {
+        const checked = S.habits.includes(item);
+        const row = document.createElement('div');
+        row.className = 'habit-row' + (checked ? ' checked' : '');
+        row.innerHTML = `<div class="hcheck"></div><div class="hlabel">${item}</div>`;
+        row.onclick = () => this._toggleHabit(item);
+        div.appendChild(row);
+      });
+      wrap.appendChild(div);
+    });
+    this._renderCustom();
+  },
+
+  _toggleHabit(label) {
+    const i = S.habits.indexOf(label);
+    if (i >= 0) S.habits.splice(i, 1); else S.habits.push(label);
+    save(); this._renderHabits();
+  },
+
+  addCustom() {
+    const el = document.getElementById('custom-input');
+    const v = el.value.trim(); if (!v) return;
+    S.customHabits.push({ label: v, checked: false });
+    el.value = ''; save(); this._renderCustom();
+  },
+
+  _toggleCustom(i) {
+    S.customHabits[i].checked = !S.customHabits[i].checked;
+    save(); this._renderCustom();
+  },
+
+  _renderCustom() {
+    const wrap = document.getElementById('custom-list');
+    wrap.innerHTML = '';
+    (S.customHabits || []).forEach((h, i) => {
+      const row = document.createElement('div');
+      row.className = 'habit-row' + (h.checked ? ' checked' : '');
+      row.innerHTML = `<div class="hcheck"></div><div class="hlabel">${h.label}</div>`;
+      row.onclick = () => this._toggleCustom(i);
+      wrap.appendChild(row);
+    });
+  },
+
+  /* ── Reflections ────────────────────────────────── */
+  setWeek(w) {
+    reflectWeek = w;
+    document.querySelectorAll('.tab-btn').forEach((b, i) =>
+      b.classList.toggle('active', i+1 === w)
+    );
+    this._renderReflect();
+  },
+
+  _renderReflect() {
+    const w  = reflectWeek;
+    const st = weekStats(w);
+    const saved = S.reflections[w] || {};
+    const qs = (STRINGS[S.lang]||STRINGS.en).reflectQs;
+    const quotes = { 1:'"The first step toward change is awareness." — Nathaniel Branden', 2:'"We are what we repeatedly do." — Aristotle', 3:'"You are enough. You have enough. You do enough." — Brené Brown' };
+
+    let html = `<div class="quote-box">${quotes[w]}</div>`;
+
+    qs.forEach((q, i) => {
+      html += `
+        <div class="card">
+          <div class="form-row">
+            <label style="font-weight:800;color:var(--green-dark);font-size:.85rem;">■ ${q}</label>
+            <textarea rows="3" id="rq-${w}-${i}" placeholder="Write your thoughts…"
+              onchange="App._saveReflect(${w},${i})">${saved['q'+i] || ''}</textarea>
+          </div>
+        </div>`;
+    });
+
+    html += `
+      <div class="card-dark">
+        <h2>WEEK ${w} STATS</h2>
+        <div class="note" style="opacity:.9;line-height:2.1;">
+          <div>• Total screen time: <strong>${st.totScreen} hrs</strong></div>
+          <div>• Challenges done: <strong>${st.done} / 7</strong></div>
+          <div>• Average mood: <strong>${st.avgMood} / 5</strong></div>
+        </div>
+      </div>`;
+
+    document.getElementById('reflect-body').innerHTML = html;
+  },
+
+  _saveReflect(w, i) {
+    if (!S.reflections[w]) S.reflections[w] = {};
+    const el = document.getElementById(`rq-${w}-${i}`);
+    if (el) S.reflections[w]['q'+i] = el.value;
+    save();
+  },
+
+  /* ── Final Reflection & Certificate ─────────────── */
+  _renderFinish() {
+    document.getElementById('cert-name').textContent = S.name || 'Your Name';
+    document.getElementById('cert-date').textContent =
+      new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+
+    const fqs = (STRINGS[S.lang]||STRINGS.en).finalQs;
+    const form = document.getElementById('final-form');
+    let html = '';
+    fqs.forEach((item, i) => {
+      html += `
+        <div class="form-row">
+          <label style="font-weight:800;color:var(--green-dark);font-size:.85rem;">→ ${item.q}</label>
+          <textarea rows="3" id="fq-${item.key}" placeholder="Write your thoughts…"
+            onchange="App._saveFinal('${item.key}')">${S.finalReflection[item.key] || ''}</textarea>
+        </div>`;
+      if (i < fqs.length-1) html += '<div class="divider"></div>';
+    });
+    form.innerHTML = html;
+  },
+
+  _saveFinal(key) {
+    const el = document.getElementById('fq-' + key);
+    if (el) S.finalReflection[key] = el.value;
+    save();
+  },
+
+  /* ── Print Certificate ──────────────────────────── */
+  printCert() {
+    const name = S.name || 'Your Name';
+    const date = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html><html><head>
+      <meta charset="UTF-8"><title>Certificate – 21-Day Digital Detox</title>
+      <style>
+        body{font-family:Georgia,serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f0e8;margin:0;}
+        .c{border:4px solid #2d5016;border-radius:16px;padding:48px 40px;text-align:center;max-width:520px;background:#fff;}
+        h3{font-size:.78rem;letter-spacing:3px;text-transform:uppercase;color:#8a9a7a;}
+        .logo{font-size:2.8rem;margin-bottom:10px;}
+        .name{font-size:1.8rem;font-weight:900;color:#2d5016;margin:12px 0 8px;border-bottom:2px solid #2d5016;padding-bottom:8px;}
+        .title{font-size:1.1rem;font-weight:900;color:#2d5016;margin:8px 0;}
+        p{color:#4a5e3a;margin:5px 0;font-size:.9rem;}
+        .foot{display:flex;justify-content:space-between;margin-top:24px;font-size:.72rem;color:#8a9a7a;border-top:1px solid #d0e0c0;padding-top:14px;}
+        @media print{body{background:#fff;}}
+      </style></head><body>
+      <div class="c">
+        <div class="logo">📵</div>
+        <h3>— Certificate of Completion —</h3>
+        <p>This is to certify that</p>
+        <div class="name">${name}</div>
+        <p>has successfully completed the</p>
+        <div class="title">21-DAY DIGITAL DETOX CHALLENGE</div>
+        <p style="font-size:.78rem;color:#8a9a7a;margin-top:6px;">and has taken a meaningful step toward a healthier relationship with technology.</p>
+        <div class="foot"><span>Date: ${date}</span><span>✓ Completed</span></div>
+      </div>
+      <script>window.onload=()=>window.print()<\/script>
+    </body></html>`);
+    win.document.close();
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   BOOT
+   ═══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
